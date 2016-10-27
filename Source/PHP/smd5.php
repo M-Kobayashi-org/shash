@@ -21,31 +21,46 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function smd5($plain = '') {
+function smd5($plain = '', $salt = '') {
+	// Get the hash value
 	$encoded = md5($plain);
-	$salt_offset = hexdec(substr($encoded, 0, 1));
-	$salt_length = hexdec(substr($encoded, 1, 1)) + 1;
-	$salt = substr($encoded, $salt_offset, $salt_length);
-	$repeat_count = hexdec(substr($encoded, 2, 1));
-	if (hexdec(substr($encoded, 3, 1)) % 2 != 0) {
-		$is_odd = 1;
-	}
-	else {
-		$is_odd = 0;
-	}
-	if ($is_odd === 1) {
-		$result = md5($plain. $salt);
-	}
-	else {
-		$result = md5($salt. $plain);
-	}
+	$salt = md5($salt);
+
+	// Get the number of repetitions
+	$repeat_count = hexdec(substr($encoded, 0, 1)) + hexdec(substr($encoded, 1, 1)) + 2;
+
 	for ($idx = 0; $repeat_count > $idx; $idx++) {
-		if ($is_odd === 1) {
-			$result = md5($result. $salt);
-		}
-		else {
-			$result = md5($salt. $result);
-		}
+		// Get the insertion position of the salt string
+		$insert_offset = hexdec(substr($encoded, 2, 1));
+		// Get the Case method
+		if (hexdec(substr($encoded, 3, 1)) % 2 != 0)
+			$is_upper_endoded = true;
+		else
+			$is_upper_endoded = false;
+		// Case of
+		$encoded = $is_upper_endoded ? strtoupper($encoded) : strtolower($encoded);
+
+		// Get the salt string start offset
+		$salt_offset = hexdec(substr($salt, 0, 1));
+		// Get the salt string length
+		$salt_length = hexdec(substr($salt, 1, 1)) + 1;
+		// Get the Case method
+		if (hexdec(substr($salt, 2, 1)) % 2 != 0)
+			$is_upper_salt = true;
+		else
+			$is_upper_salt = false;
+		// Get the salt string
+		$salt = substr($salt, $salt_offset, $salt_length);
+		// Case of
+		$salt = $is_upper_salt ? strtoupper($salt) : strtolower($salt);
+		// Insert the salt string to salt string synthetic position
+		$encoded = ($insert_offset ? substr($encoded, 0, $insert_offset) : '') . $salt . ($insert_offset ? substr($encoded, $insert_offset) : $encoded);
+		// Get the hash value
+		$result = md5($encoded);
+		// Set the new hash value
+		$encoded = $result;
+		$salt = md5($salt);
 	}
+
 	return $result;
 }

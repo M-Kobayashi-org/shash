@@ -40,8 +40,8 @@ foreach (array(
 		'a@b.com',
 		) as $str) {
 	if (is_null($str))
-		printf("null\t=> %s\n", smd5($str));
+		printf("null\t=> %s\n", smd5($str, 'A'));
 	else
-		printf("'%s'\t=> %s\n", $str, smd5($str));
+		printf("'%s'\t=> %s\n", $str, smd5($str, 'A'));
 }
 
