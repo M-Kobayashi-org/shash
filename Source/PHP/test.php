@@ -21,7 +21,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once('smd5.php');
+require_once('SecureDigest.php');
 
 foreach (array(
 		null,
@@ -40,8 +40,8 @@ foreach (array(
 		'a@b.com',
 		) as $str) {
 	if (is_null($str))
-		printf("null\t=> %s\n", smd5($str, 'A'));
+		printf("null\t=> %s\n", SecureDigest::smd5($str, 'A'));
 	else
-		printf("'%s'\t=> %s\n", $str, smd5($str, 'A'));
+		printf("'%s'\t=> %s\n", $str, SecureDigest::smd5($str, 'A'));
 }
 
