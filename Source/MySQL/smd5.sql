@@ -1,7 +1,7 @@
 /*
  * The original string is hard to guess MD5.
  *
- *      Create 2016-10-23 By Masato Kobayashi
+ *      Create 2016-10-29 By Masato Kobayashi
  *
  *
  *   Copyright (C) 2016 Masato Kobayashi. All rights reserved.
@@ -23,15 +23,16 @@
 DELIMITER //
 
 DROP FUNCTION IF EXISTS smd5//
-CREATE FUNCTION smd5 (plain TEXT)
+CREATE FUNCTION smd5 (plain TEXT, salt TEXT)
 RETURNS TEXT DETERMINISTIC
 BEGIN
-    DECLARE encoded VARCHAR(32);
+    DECLARE encoded VARCHAR(48);
+    DECLARE encoded_salt VARCHAR(32);
+    DECLARE insert_offset INT;
+    DECLARE is_upper_salt INT;
     DECLARE salt_offset INT;
     DECLARE salt_length INT;
     DECLARE repeat_count INT;
-    DECLARE is_odd INT;
-    DECLARE salt VARCHAR(16);
     DECLARE result VARCHAR(32);
     DECLARE idx INT;
 
@@ -40,30 +41,56 @@ BEGIN
         SET plain = '';
     END IF;
     SET encoded = MD5(plain);
+    IF salt IS NULL THEN
+        SET salt = '';
+    END IF;
+    SET encoded_salt = MD5(salt);
+
     -- 各変換設定値を取得する
-    SET salt_offset  = CONV(SUBSTRING(encoded, 1, 1), 16, 10) + 1;
-    SET salt_length  = CONV(SUBSTRING(encoded, 2, 1), 16, 10) + 1;
-    SET repeat_count = CONV(SUBSTRING(encoded, 3, 1), 16, 10);
-    SET salt = SUBSTRING(encoded, salt_offset, salt_length);
-    IF CONV(SUBSTRING(encoded, 4, 1), 16, 10) % 2 != 0 THEN
-        SET is_odd = 1;
-    ELSE
-        SET is_odd = 0;
-    END IF;
-    -- saltを付加してハッシュを取得
-    IF is_odd = 1 THEN
-        SET result = MD5(CONCAT(plain, salt));
-    ELSE
-        SET result = MD5(CONCAT(salt, plain));
-    END IF;
-    -- 指定回数繰り返してハッシュを取得
+    SET repeat_count = CONV(SUBSTRING(encoded, 1, 1), 16, 10) + CONV(SUBSTRING(encoded, 2, 1), 16, 10) + 2;
+
     SET idx = 0;
     WHILE repeat_count > idx DO
-        IF is_odd = 1 THEN
-            SET result = MD5(CONCAT(result, salt));
+        -- salt文字列挿入位置を取得する
+        SET insert_offset = CONV(SUBSTRING(encoded, 3, 1), 16, 10);
+        -- 大小文字化
+        IF CONV(SUBSTRING(encoded, 4, 1), 16, 10) % 2 != 0 THEN
+            SET encoded = UPPER(encoded);
         ELSE
-            SET result = MD5(CONCAT(salt, result));
+            SET encoded = LOWER(encoded);
         END IF;
+        -- salt文字列抽出条件を取得する
+        SET salt_offset  = CONV(SUBSTRING(encoded_salt, 1, 1), 16, 10) + 1;
+        SET salt_length  = CONV(SUBSTRING(encoded_salt, 2, 1), 16, 10) + 1;
+        -- salt文字列の大小文字化方法を取得する
+        IF CONV(SUBSTRING(encoded_salt, 3, 1), 16, 10) % 2 != 0 THEN
+            SET is_upper_salt = 1;
+        ELSE
+            SET is_upper_salt = 0;
+        END IF;
+        -- salt文字列を抽出する
+        SET encoded_salt = SUBSTRING(encoded_salt, salt_offset, salt_length);
+        -- 大小文字化
+        IF is_upper_salt = 0 THEN
+            SET encoded_salt = LOWER(encoded_salt);
+        ELSE
+            SET encoded_salt = UPPER(encoded_salt);
+        END IF;
+        -- salt文字列を挿入する
+        IF insert_offset = 0 THEN
+            SET encoded = CONCAT(encoded_salt, encoded);
+        ELSE
+            SET encoded = CONCAT(SUBSTRING(encoded, 1, insert_offset), encoded_salt, SUBSTRING(encoded, insert_offset + 1));
+        END IF;
+
+        -- ハッシュを取得する
+        SET result = MD5(encoded);
+
+        -- ハッシュ値をセットする
+        SET encoded = result;
+        SET encoded_salt = MD5(encoded_salt);
+
+        -- カウンタをインクリメント
         SET idx = idx + 1;
     END WHILE;
 
