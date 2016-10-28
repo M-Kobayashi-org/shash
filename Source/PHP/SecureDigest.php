@@ -49,13 +49,8 @@ class SecureDigest {
 		for ($idx = 0; $repeat_count > $idx; $idx++) {
 			// Get the insertion position of the salt string
 			$insert_offset = hexdec(substr($encoded, 2, 1));
-			// Get the Case method
-			if (hexdec(substr($encoded, 3, 1)) % 2 != 0)
-				$is_upper_endoded = true;
-			else
-				$is_upper_endoded = false;
 			// Case of
-			$encoded = $is_upper_endoded ? strtoupper($encoded) : strtolower($encoded);
+			$encoded = (hexdec(substr($encoded, 3, 1)) % 2 != 0) ? strtoupper($encoded) : strtolower($encoded);
 
 			// Get the salt string start offset
 			$salt_offset = hexdec(substr($salt, 0, 1));
