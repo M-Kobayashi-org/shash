@@ -123,4 +123,145 @@ class SecureDigest {
 
 		return $result;
 	}
+
+/**
+ * To calculate the hash value of the string.
+ * Hash logic underlying is SHA256.
+ *
+ * @param string $plain
+ * @param string $salt
+ * @return string (64 returns the hexadecimal characters.)
+ */
+	public static function ssha256($plain = '', $salt = '') {
+		// Get the hash value
+		$encoded = hash('sha256', $plain);
+		$salt = hash('sha256', $salt);
+
+		// Get the number of repetitions
+		$repeat_count = hexdec(substr($encoded, 0, 1)) + hexdec(substr($encoded, 1, 1)) + 2;
+
+		for ($idx = 0; $repeat_count > $idx; $idx++) {
+			// Get the insertion position of the salt string
+			$insert_offset = hexdec(substr($encoded, 2, 1));
+			// Case of
+			$encoded = (hexdec(substr($encoded, 3, 1)) % 2 != 0) ? strtoupper($encoded) : strtolower($encoded);
+
+			// Get the salt string start offset
+			$salt_offset = hexdec(substr($salt, 0, 1));
+			// Get the salt string length
+			$salt_length = hexdec(substr($salt, 1, 1)) + 1;
+			// Get the Case method
+			if (hexdec(substr($salt, 2, 1)) % 2 != 0)
+				$is_upper_salt = true;
+			else
+				$is_upper_salt = false;
+			// Get the salt string
+			$salt = substr($salt, $salt_offset, $salt_length);
+			// Case of
+			$salt = $is_upper_salt ? strtoupper($salt) : strtolower($salt);
+			// Insert the salt string to salt string synthetic position
+			$encoded = ($insert_offset ? substr($encoded, 0, $insert_offset) : '') . $salt . ($insert_offset ? substr($encoded, $insert_offset) : $encoded);
+			// Get the hash value
+			$result = hash('sha256', $encoded);
+			// Set the new hash value
+			$encoded = $result;
+			$salt = hash('sha256', $salt);
+		}
+
+		return $result;
+	}
+
+/**
+ * To calculate the hash value of the string.
+ * Hash logic underlying is SHA384.
+ *
+ * @param string $plain
+ * @param string $salt
+ * @return string (96 returns the hexadecimal characters.)
+ */
+	public static function ssha384($plain = '', $salt = '') {
+		// Get the hash value
+		$encoded = hash('sha384', $plain);
+		$salt = hash('sha384', $salt);
+
+		// Get the number of repetitions
+		$repeat_count = hexdec(substr($encoded, 0, 1)) + hexdec(substr($encoded, 1, 1)) + 2;
+
+		for ($idx = 0; $repeat_count > $idx; $idx++) {
+			// Get the insertion position of the salt string
+			$insert_offset = hexdec(substr($encoded, 2, 1));
+			// Case of
+			$encoded = (hexdec(substr($encoded, 3, 1)) % 2 != 0) ? strtoupper($encoded) : strtolower($encoded);
+
+			// Get the salt string start offset
+			$salt_offset = hexdec(substr($salt, 0, 1));
+			// Get the salt string length
+			$salt_length = hexdec(substr($salt, 1, 1)) + 1;
+			// Get the Case method
+			if (hexdec(substr($salt, 2, 1)) % 2 != 0)
+				$is_upper_salt = true;
+			else
+				$is_upper_salt = false;
+			// Get the salt string
+			$salt = substr($salt, $salt_offset, $salt_length);
+			// Case of
+			$salt = $is_upper_salt ? strtoupper($salt) : strtolower($salt);
+			// Insert the salt string to salt string synthetic position
+			$encoded = ($insert_offset ? substr($encoded, 0, $insert_offset) : '') . $salt . ($insert_offset ? substr($encoded, $insert_offset) : $encoded);
+			// Get the hash value
+			$result = hash('sha384', $encoded);
+			// Set the new hash value
+			$encoded = $result;
+			$salt = hash('sha384', $salt);
+		}
+
+		return $result;
+	}
+
+/**
+ * To calculate the hash value of the string.
+ * Hash logic underlying is SHA512.
+ *
+ * @param string $plain
+ * @param string $salt
+ * @return string (128 returns the hexadecimal characters.)
+ */
+	public static function ssha512($plain = '', $salt = '') {
+		// Get the hash value
+		$encoded = hash('sha512', $plain);
+		$salt = hash('sha512', $salt);
+
+		// Get the number of repetitions
+		$repeat_count = hexdec(substr($encoded, 0, 1)) + hexdec(substr($encoded, 1, 1)) + 2;
+
+		for ($idx = 0; $repeat_count > $idx; $idx++) {
+			// Get the insertion position of the salt string
+			$insert_offset = hexdec(substr($encoded, 2, 1));
+			// Case of
+			$encoded = (hexdec(substr($encoded, 3, 1)) % 2 != 0) ? strtoupper($encoded) : strtolower($encoded);
+
+			// Get the salt string start offset
+			$salt_offset = hexdec(substr($salt, 0, 1));
+			// Get the salt string length
+			$salt_length = hexdec(substr($salt, 1, 1)) + 1;
+			// Get the Case method
+			if (hexdec(substr($salt, 2, 1)) % 2 != 0)
+				$is_upper_salt = true;
+			else
+				$is_upper_salt = false;
+			// Get the salt string
+			$salt = substr($salt, $salt_offset, $salt_length);
+			// Case of
+			$salt = $is_upper_salt ? strtoupper($salt) : strtolower($salt);
+			// Insert the salt string to salt string synthetic position
+			$encoded = ($insert_offset ? substr($encoded, 0, $insert_offset) : '') . $salt . ($insert_offset ? substr($encoded, $insert_offset) : $encoded);
+			// Get the hash value
+			$result = hash('sha512', $encoded);
+			// Set the new hash value
+			$encoded = $result;
+			$salt = hash('sha512', $salt);
+		}
+
+		return $result;
+	}
 }

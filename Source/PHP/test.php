@@ -53,3 +53,24 @@ foreach ($plains as $str) {
 		else
 			printf("'%s'\t=> %s\n", $str, SecureDigest::ssha1($str, 'A'));
 }
+
+foreach ($plains as $str) {
+	if (is_null($str))
+		printf("null\t=> %s\n", SecureDigest::ssha256($str, 'A'));
+		else
+			printf("'%s'\t=> %s\n", $str, SecureDigest::ssha256($str, 'A'));
+}
+
+foreach ($plains as $str) {
+	if (is_null($str))
+		printf("null\t=> %s\n", SecureDigest::ssha384($str, 'A'));
+		else
+			printf("'%s'\t=> %s\n", $str, SecureDigest::ssha384($str, 'A'));
+}
+
+foreach ($plains as $str) {
+	if (is_null($str))
+		printf("null\t=> %s\n", SecureDigest::ssha512($str, 'A'));
+		else
+			printf("'%s'\t=> %s\n", $str, SecureDigest::ssha512($str, 'A'));
+}
