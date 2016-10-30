@@ -23,7 +23,7 @@
 
 require_once('SecureDigest.php');
 
-foreach (array(
+$plains = array(
 		null,
 		'',
 		' ',
@@ -38,10 +38,18 @@ foreach (array(
 		'AB',
 		'@',
 		'a@b.com',
-		) as $str) {
+);
+
+foreach ($plains as $str) {
 	if (is_null($str))
 		printf("null\t=> %s\n", SecureDigest::smd5($str, 'A'));
 	else
 		printf("'%s'\t=> %s\n", $str, SecureDigest::smd5($str, 'A'));
 }
 
+foreach ($plains as $str) {
+	if (is_null($str))
+		printf("null\t=> %s\n", SecureDigest::ssha1($str, 'A'));
+		else
+			printf("'%s'\t=> %s\n", $str, SecureDigest::ssha1($str, 'A'));
+}
